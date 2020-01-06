@@ -1,7 +1,6 @@
 package unpacker
 
 import (
-	"errors"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -10,7 +9,7 @@ type TestCaseType struct {
 	description    string
 	testData       string
 	expectedResult string
-	expectedError  error
+	err            error
 }
 
 func TestUnpack(t *testing.T) {
@@ -27,14 +26,14 @@ func TestUnpack(t *testing.T) {
 			expectedResult: "abcd",
 		},
 		{
-			description:   "test data №3",
-			testData:      "45",
-			expectedError: errors.New("некорректная строка"),
+			description: "test data №3",
+			testData:    "45",
+			err:         errRune,
 		},
 		{
-			description:    "test data №4",
-			testData:       "",
-			expectedResult: "",
+			description: "test data №4",
+			testData:    "",
+			err:         errRune,
 		},
 		{
 			description:    "test data №5",
@@ -52,12 +51,25 @@ func TestUnpack(t *testing.T) {
 			expectedResult: `qwe\\\\\`,
 		},
 	}
+
 	for _, testCase := range testCases {
+
 		result, err := Unpack(testCase.testData)
-		if testCase.expectedError != nil {
-			assert.Equal(testCase.expectedError, err, testCase.description)
+
+		if err != nil {
+
+			assert.Equal(testCase.err, err, testCase.description)
+
 		} else {
+
 			assert.Equal(testCase.expectedResult, result, testCase.description)
 		}
+	}
+}
+
+func BenchmarkUnpack(b *testing.B) {
+	b.SetBytes(2)
+	for i := 0; i < b.N; i++ {
+		Unpack(`a4bc2d5e`)
 	}
 }
