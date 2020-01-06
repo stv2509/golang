@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/stv2509/golang/HW-2/unpacker"
+	"HW-2/unpacker"
 )
 
 func main() {
