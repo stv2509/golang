@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"HW-2/unpacker"
+	"fmt"
 )
 
 func main() {

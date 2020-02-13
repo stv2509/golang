@@ -1,75 +1,43 @@
 package unpacker
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-type TestCaseType struct {
-	description    string
-	testData       string
-	expectedResult string
-	err            error
-}
-
 func TestUnpack(t *testing.T) {
-	assert := assert.New(t)
-	testCases := []TestCaseType{
-		{
-			description:    "test data №1",
-			testData:       "a4bc2d5e",
-			expectedResult: "aaaabccddddde",
-		},
-		{
-			description:    "test data №2",
-			testData:       "abcd",
-			expectedResult: "abcd",
-		},
-		{
-			description: "test data №3",
-			testData:    "45",
-			err:         errRune,
-		},
-		{
-			description: "test data №4",
-			testData:    "",
-			err:         errRune,
-		},
-		{
-			description:    "test data №5",
-			testData:       `qwe\4\5`,
-			expectedResult: "qwe45",
-		},
-		{
-			description:    "test data №6",
-			testData:       `qwe\45`,
-			expectedResult: "qwe44444",
-		},
-		{
-			description:    "test data №7",
-			testData:       `qwe\\5`,
-			expectedResult: `qwe\\\\\`,
-		},
+
+	UnpackTests := []struct {
+		idTest    string
+		inParm    string
+		hasUnpack string
+		err       error
+	}{
+		{idTest: "test1", inParm: "a4bc2d5e", hasUnpack: "aaaabccddddde"},
+		{idTest: "test2", inParm: "abcd", hasUnpack: "abcd"},
+		{idTest: "test3", inParm: "45", err: errRune},
+		{idTest: "test4", inParm: "", err: errRune},
+		{idTest: "test5", inParm: `qwe\4\5`, hasUnpack: "qwe45"},
+		{idTest: "test6", inParm: `qwe\45`, hasUnpack: "qwe44444"},
+		{idTest: "test7", inParm: `qwe\\5`, hasUnpack: `qwe\\\\\`},
 	}
 
-	for _, testCase := range testCases {
+	for _, tt := range UnpackTests {
+		t.Run(tt.idTest, func(t *testing.T) {
+			got, err := Unpack(tt.inParm)
 
-		result, err := Unpack(testCase.testData)
+			if err != nil {
+				if err != tt.err {
+					t.Errorf("%#v got %s want %s", tt.inParm, got, tt.err)
+				}
 
-		if err != nil {
+			} else {
 
-			assert.Equal(testCase.err, err, testCase.description)
+				if got != tt.hasUnpack {
+					t.Errorf("%#v got %s want %s", tt.inParm, got, tt.hasUnpack)
+				}
+			}
+		})
 
-		} else {
-
-			assert.Equal(testCase.expectedResult, result, testCase.description)
-		}
 	}
-}
 
-func BenchmarkUnpack(b *testing.B) {
-	b.SetBytes(2)
-	for i := 0; i < b.N; i++ {
-		Unpack(`a4bc2d5e`)
-	}
 }
